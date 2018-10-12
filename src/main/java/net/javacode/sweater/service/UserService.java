@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
@@ -24,7 +23,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       return userRepo.findByUsername(username);
+        return userRepo.findByUsername(username);
     }
 
     public boolean addUser(User user) {
@@ -42,12 +41,13 @@ public class UserService implements UserDetailsService {
 
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
-                    "Hello, %s! \n " +
-                            "Welcome to Sweater! Please, visit next link: http://localhost:8080/activate/%s",
+                    "Hello, %s! \n" +
+                            "Welcome to Sweater. Please, visit next link: http://localhost:8080/activate/%s",
                     user.getUsername(),
                     user.getActivationCode()
             );
 
+            mailSender.send(user.getEmail(), "Activation code", message);
         }
 
         return true;
@@ -59,9 +59,11 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             return false;
         }
-        user.setActivationCode(null);
-        userRepo.save(user);
-        return true;
 
+        user.setActivationCode(null);
+
+        userRepo.save(user);
+
+        return true;
     }
 }
